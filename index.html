@@ -355,13 +355,24 @@
 
         // 🔴 본인의 Firebase 키 값으로 교체해주세요!
         const firebaseConfig = {
-            apiKey: "본인의_apiKey_입력",
-            authDomain: "본인의_authDomain_입력",
-            databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
-            projectId: "본인의_projectId_입력",
-            storageBucket: "본인의_storageBucket_입력",
-            messagingSenderId: "본인의_ID_입력",
-            appId: "본인의_AppID_입력"
+          // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDtCu4EfPFcaYsbH-1Baf8N2VWnu2zU96w",
+  authDomain: "onsunhwan.firebaseapp.com",
+  databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
+  projectId: "onsunhwan",
+  storageBucket: "onsunhwan.firebasestorage.app",
+  messagingSenderId: "689018963986",
+  appId: "1:689018963986:web:f1ec8eb6bbf73d5698f0cb"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
         };
 
         const app = initializeApp(firebaseConfig);
