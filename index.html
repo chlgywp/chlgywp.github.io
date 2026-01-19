@@ -17,7 +17,7 @@
             --white: #ffffff;
             --border: #e5e7eb;  
             --danger: #ef4444;
-            --auction: #7c3aed; /* 경매 전용 보라색 */
+            --auction: #7c3aed;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -28,7 +28,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* 버튼 스타일 */
         button { cursor: pointer; border: none; background: none; font-family: inherit; }
         .btn { 
             display: inline-flex; justify-content: center; align-items: center;
@@ -41,9 +40,8 @@
         .btn-auction { background: var(--auction); color: white; }
         .btn-outline { border: 1px solid var(--border); color: var(--dark); background: white; }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-kakao { background: #fee500; color: #191919; font-weight: 500; }
+        .btn-chat-link { background: #1e8e3e; color: white; font-weight: 500; } 
 
-        /* 구글 로그인 버튼 스타일 추가 */
         .btn-google {
             background: white; border: 1px solid var(--border); color: var(--dark);
             position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -51,7 +49,6 @@
         .btn-google:hover { background: #f8f9fa; border-color: #ccc; }
         .btn-google img { width: 20px; margin-right: 10px; }
 
-        /* 헤더 */
         header { 
             position: fixed; top: 0; left: 0; width: 100%; height: 65px;
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
@@ -62,7 +59,6 @@
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--dark); cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .logo i { color: var(--primary); }
 
-        /* 네비게이션 */
         .nav-group { display: flex; gap: 15px; height: 100%; }
         .nav-item { 
             display: flex; align-items: center; height: 100%; 
@@ -72,7 +68,6 @@
         .nav-item.active-donate { color: var(--primary); border-bottom: 2px solid var(--primary); }
         .nav-item.active-auction { color: var(--auction); border-bottom: 2px solid var(--auction); }
 
-        /* 컨테이너 */
         .container { 
             max-width: 1200px; margin: 0 auto; padding: 30px 20px; 
             display: none; flex-grow: 1; width: 100%;
@@ -80,7 +75,6 @@
         .container.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 카드 그리드 */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
         
         .card { 
@@ -110,7 +104,6 @@
         .card-price { font-weight: 800; font-size: 1.1rem; color: var(--dark); }
         .card-seller { font-size: 0.8rem; color: var(--gray); margin-top: 8px; }
 
-        /* 상세 페이지 모달 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 2000;
@@ -142,14 +135,23 @@
         }
         .bid-item { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; color: #555; }
 
-        /* 입력 폼 */
         .input-field, .file-upload, select { 
             width: 100%; padding: 14px; margin-bottom: 20px; 
             border: 1px solid var(--border); border-radius: 8px; font-size: 1rem;
         }
         .file-upload { text-align: center; padding: 30px; cursor: pointer; color: var(--gray); background: var(--light); border: 1px dashed #ccc; }
 
-        /* 플로팅 버튼 */
+        /* 이용가이드 스타일 */
+        .guide-step { display: flex; gap: 20px; margin-bottom: 40px; align-items: flex-start; }
+        .step-num { 
+            width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: white;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; flex-shrink: 0;
+        }
+        .step-content h4 { margin-bottom: 8px; font-size: 1.05rem; color: var(--dark); }
+        .step-content p { font-size: 0.9rem; color: var(--gray); line-height: 1.5; margin-bottom: 10px;}
+        .step-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; color: #555; word-break: keep-all; }
+
+
         .fab { 
             position: fixed; bottom: 30px; right: 30px; 
             width: 56px; height: 56px; border-radius: 50%; 
@@ -159,14 +161,19 @@
             cursor: pointer; z-index: 900;
         }
 
-        /* 로그인 (구글 전용) */
         #login-screen {
             position: fixed; inset: 0; background: white; z-index: 3000;
             display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center;
         }
 
-        /* 푸터 */
-        .dev-footer { text-align: center; padding: 30px 0; color: #ccc; font-size: 0.8rem; margin-top: auto; border-top: 1px solid #eee; }
+        /* ⭐ 개발자 푸터 수정됨: 아주 작게, 맨 밑에 */
+        .dev-footer { 
+            text-align: center; 
+            padding: 15px 0; 
+            color: #d1d5db; /* 매우 연한 회색 */
+            font-size: 0.7rem; /* 아주 작은 글씨 */
+            margin-top: auto; /* 컨텐츠가 적을 땐 아래로 밀고, 많으면 자연스럽게 끝에 위치 */
+        }
     </style>
 </head>
 <body>
@@ -174,7 +181,6 @@
     <div id="login-screen">
         <h1 style="font-size: 2.5rem; font-weight: 800; color:var(--primary); margin-bottom: 10px;">대건온순환</h1>
         <p style="color: var(--gray); margin-bottom: 40px;">우리 학교 중고거래 & 경매 플랫폼</p>
-        
         <button class="btn btn-google" style="max-width:300px;" onclick="window.app.loginGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
             구글 계정으로 로그인
@@ -221,10 +227,45 @@
     </div>
 
     <div id="screen-guide" class="container" style="max-width:700px;">
-        <h2>이용 방법</h2><br>
-        <p><strong>1. 채팅하기:</strong> 물건 상세화면에서 [채팅하기]를 누르면 판매자의 카카오톡 오픈채팅방으로 이동합니다.</p><br>
-        <p><strong>2. 경매 참여:</strong> 원하는 가격을 입력하고 [입찰하기]를 누르세요. 내 구글 이름으로 가격이 등록됩니다.</p><br>
-        <p><strong>3. 판매/삭제:</strong> 내가 올린 글은 상세화면에서 삭제하거나 '판매완료' 처리할 수 있습니다.</p>
+        <h2 style="margin-bottom:30px; text-align:center;">이용 방법</h2>
+        
+        <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <h4>채팅 준비하기</h4>
+                <p>대건온순환은 <strong>구글챗(Google Chat)</strong> 링크를 통해 거래합니다. 판매자는 미리 스페이스를 만들어야 합니다.</p>
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <h4>판매자: 구글챗 스페이스 만들기 & 링크 복사</h4>
+                <div class="step-box">
+                    ① <strong>Google Chat</strong> 앱 또는 사이트 접속<br>
+                    ② <strong>[새 채팅]</strong> 또는 <strong>[+]</strong> 버튼 클릭 -> <strong>[스페이스 만들기]</strong><br>
+                    ③ 스페이스 이름(예: 수학책 팝니다) 입력 후 만들기<br>
+                    ④ 만들어진 스페이스 상단의 <strong>이름 클릭</strong> -> <strong>[스페이스 링크 복사]</strong><br>
+                    (또는 인터넷 주소창의 링크를 복사해도 됩니다)
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <h4>판매자: 물건 등록하기</h4>
+                <p>물건 등록 화면 맨 아래에 있는 <strong>'구글챗 링크'</strong> 칸에 복사한 주소를 붙여넣기 하세요.</p>
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <h4>구매자: 채팅하기</h4>
+                <p>물건 상세화면에서 <strong>[구글챗으로 대화하기]</strong> 버튼을 누르면 판매자의 스페이스로 이동합니다.</p>
+            </div>
+        </div>
     </div>
 
     <div id="screen-write" class="container" style="max-width:600px;">
@@ -256,8 +297,8 @@
             <option value="etc">기타</option>
         </select>
 
-        <label>카카오톡 오픈채팅 링크</label>
-        <input type="text" id="w-link" class="input-field" placeholder="https://open.kakao.com/...">
+        <label>구글챗(Chat) 스페이스 링크</label>
+        <input type="text" id="w-link" class="input-field" placeholder="https://mail.google.com/chat/...">
 
         <div style="display:flex; gap:10px;">
             <button class="btn btn-outline" onclick="window.app.goBack()">취소</button>
@@ -268,15 +309,12 @@
     <div id="modal-detail" class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
         <div class="modal-content">
             <div class="modal-close" onclick="window.app.closeModal()"><i class="fas fa-times"></i></div>
-            
             <img id="d-img" class="detail-img">
-            
             <div class="detail-body">
                 <div class="detail-meta">
                     <span id="d-cat" class="detail-tag">카테고리</span>
                     <span id="d-seller" style="font-size:0.9rem; color:#888;">판매자</span>
                 </div>
-                
                 <div id="d-title" class="detail-title">제목</div>
                 <div id="d-price" class="detail-price">가격</div>
 
@@ -295,7 +333,7 @@
                 </div>
 
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <button id="btn-chat" class="btn btn-kakao"><i class="fas fa-comment"></i> 판매자와 채팅하기</button>
+                    <button id="btn-chat" class="btn btn-chat-link"><i class="fas fa-comment"></i> 구글챗으로 대화하기</button>
                     
                     <div id="owner-actions" style="display:none; gap:10px; margin-top:10px;">
                         <button class="btn btn-primary" onclick="window.app.markSold()">거래완료 처리</button>
@@ -313,40 +351,37 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        // ⭐ 인증(Auth) 관련 기능 추가
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // 🔴 본인의 Firebase 키 값으로 교체해주세요! (반드시 Firebase 콘솔에서 Authentication -> Sign-in method -> Google을 켜야 합니다)
+        // 🔴 본인의 Firebase 키 값으로 교체해주세요!
         const firebaseConfig = {
-  apiKey: "AIzaSyDtCu4EfPFcaYsbH-1Baf8N2VWnu2zU96w",
-  authDomain: "onsunhwan.firebaseapp.com",
-  databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
-  projectId: "onsunhwan",
-  storageBucket: "onsunhwan.firebasestorage.app",
-  messagingSenderId: "689018963986",
-  appId: "1:689018963986:web:f1ec8eb6bbf73d5698f0cb"
-};
+            apiKey: "본인의_apiKey_입력",
+            authDomain: "본인의_authDomain_입력",
+            databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
+            projectId: "본인의_projectId_입력",
+            storageBucket: "본인의_storageBucket_입력",
+            messagingSenderId: "본인의_ID_입력",
+            appId: "본인의_AppID_입력"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const auth = getAuth(app); // 인증 초기화
+        const auth = getAuth(app);
 
         window.app = {
-            user: null, // 이제 구글 닉네임이 들어갑니다
+            user: null,
             products: {}, 
             currentTab: 'trade',
             selectedId: null,
 
             init: function() {
-                // 1. 인증 상태 확인 (로그인 되었는지 체크)
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
-                        // 로그인 된 상태
-                        this.user = user.displayName; // 구글 이름 사용
+                        this.user = user.displayName;
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('header').style.display = 'flex';
                         this.switchTab('trade');
                     } else {
-                        // 로그아웃 된 상태
                         this.user = null;
                         document.getElementById('login-screen').style.display = 'flex';
                         document.getElementById('header').style.display = 'none';
@@ -354,7 +389,6 @@
                     }
                 });
 
-                // 2. 데이터 불러오기
                 const dbRef = ref(db, 'products');
                 onValue(dbRef, (snapshot) => {
                     this.products = snapshot.val() || {};
@@ -367,18 +401,13 @@
                 });
             },
 
-            // ⭐ 구글 로그인 함수
             loginGoogle: function() {
                 const provider = new GoogleAuthProvider();
-                signInWithPopup(auth, provider)
-                    .then((result) => {
-                        // 로그인 성공 시 onAuthStateChanged가 자동으로 감지하므로 여기서 별도 처리는 필요 없음
-                    }).catch((error) => {
-                        alert("로그인 실패: " + error.message);
-                    });
+                signInWithPopup(auth, provider).catch((error) => {
+                    alert("로그인 실패: " + error.message);
+                });
             },
 
-            // ⭐ 로그아웃 함수
             logout: function() {
                 if(confirm("로그아웃 하시겠습니까?")) {
                     signOut(auth);
@@ -487,6 +516,8 @@
             },
 
             upload: function() {
+                if(!this.user) return alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+
                 const title = document.getElementById('w-title').value;
                 const desc = document.getElementById('w-desc').value;
                 const link = document.getElementById('w-link').value;
@@ -515,10 +546,15 @@
                     bids: {}
                 };
 
-                set(ref(db, 'products/' + id), newProduct).then(() => {
-                    alert('등록되었습니다!');
-                    this.switchTab(this.writeMode);
-                });
+                set(ref(db, 'products/' + id), newProduct)
+                    .then(() => {
+                        alert('성공적으로 등록되었습니다!');
+                        this.switchTab(this.writeMode);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        alert("등록 실패! (원인: " + error.message + ")\n\n※ Firebase 콘솔의 Rules(규칙)에서 쓰기 권한이 'false'인지 확인하세요.");
+                    });
             },
 
             openDetail: function(id) {
@@ -566,7 +602,7 @@
                 if(p.link) {
                     btnChat.style.display = 'flex';
                     btnChat.onclick = () => window.open(p.link);
-                    btnChat.innerHTML = '<i class="fas fa-comment"></i> 오픈채팅방 연결';
+                    btnChat.innerHTML = '<i class="fas fa-comment"></i> 구글챗으로 대화하기';
                 } else {
                     btnChat.style.display = 'none';
                 }
