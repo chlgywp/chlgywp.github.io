@@ -151,7 +151,6 @@
         .step-content p { font-size: 0.9rem; color: var(--gray); line-height: 1.5; margin-bottom: 10px;}
         .step-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; color: #555; word-break: keep-all; }
 
-
         .fab { 
             position: fixed; bottom: 30px; right: 30px; 
             width: 56px; height: 56px; border-radius: 50%; 
@@ -166,13 +165,12 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center;
         }
 
-        /* ⭐ 개발자 푸터 수정됨: 아주 작게, 맨 밑에 */
         .dev-footer { 
             text-align: center; 
             padding: 15px 0; 
-            color: #d1d5db; /* 매우 연한 회색 */
-            font-size: 0.7rem; /* 아주 작은 글씨 */
-            margin-top: auto; /* 컨텐츠가 적을 땐 아래로 밀고, 많으면 자연스럽게 끝에 위치 */
+            color: #d1d5db; 
+            font-size: 0.7rem; 
+            margin-top: auto; 
         }
     </style>
 </head>
@@ -336,7 +334,7 @@
                     <button id="btn-chat" class="btn btn-chat-link"><i class="fas fa-comment"></i> 구글챗으로 대화하기</button>
                     
                     <div id="owner-actions" style="display:none; gap:10px; margin-top:10px;">
-                        <button class="btn btn-primary" onclick="window.app.markSold()">거래완료 처리</button>
+                        <button class="btn btn-primary" id="btn-mark-sold" onclick="window.app.markSold()">거래완료 처리</button>
                         <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>
                     </div>
                 </div>
@@ -352,19 +350,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // 🔴 본인의 Firebase 키 값으로 교체해주세요!
      
         const firebaseConfig = {
             apiKey: "AIzaSyDtCu4EfPFcaYsbH-1Baf8N2VWnu2zU96w",
-  authDomain: "onsunhwan.firebaseapp.com",
-  databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
-  projectId: "onsunhwan",
-  storageBucket: "onsunhwan.firebasestorage.app",
-  messagingSenderId: "689018963986",
-  appId: "1:689018963986:web:f1ec8eb6bbf73d5698f0cb"
+            authDomain: "onsunhwan.firebaseapp.com",
+            databaseURL: "https://onsunhwan-default-rtdb.firebaseio.com",
+            projectId: "onsunhwan",
+            storageBucket: "onsunhwan.firebasestorage.app",
+            messagingSenderId: "689018963986",
+            appId: "1:689018963986:web:f1ec8eb6bbf73d5698f0cb"
         };
-       
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -372,6 +367,7 @@
 
         window.app = {
             user: null,
+            userEmail: null, // [관리자 기능 추가 1] 이메일을 저장할 변수 추가
             products: {}, 
             currentTab: 'trade',
             selectedId: null,
@@ -380,11 +376,13 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         this.user = user.displayName;
+                        this.userEmail = user.email; // [관리자 기능 추가 2] 로그인 시 이메일 저장
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('header').style.display = 'flex';
                         this.switchTab('trade');
                     } else {
                         this.user = null;
+                        this.userEmail = null;
                         document.getElementById('login-screen').style.display = 'flex';
                         document.getElementById('header').style.display = 'none';
                         document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -441,12 +439,17 @@
                 if(!list) return;
                 list.innerHTML = '';
                 
+                let searchQuery = '';
+                const searchInput = document.getElementById('search-' + type);
+                if(searchInput) searchQuery = searchInput.value.toLowerCase();
+
                 const arr = Object.values(this.products)
                     .filter(p => p.type === type)
+                    .filter(p => p.title.toLowerCase().includes(searchQuery))
                     .sort((a,b) => b.id - a.id);
 
                 if(arr.length === 0) {
-                    list.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:50px; color:#aaa;">아직 등록된 물건이 없습니다.</p>`;
+                    list.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:50px; color:#aaa;">아직 등록된 물건이 없거나 검색 결과가 없습니다.</p>`;
                     return;
                 }
 
@@ -555,7 +558,7 @@
                     })
                     .catch((error) => {
                         console.error(error);
-                        alert("등록 실패! (원인: " + error.message + ")\n\n※ Firebase 콘솔의 Rules(규칙)에서 쓰기 권한이 'false'인지 확인하세요.");
+                        alert("등록 실패! (원인: " + error.message + ")");
                     });
             },
 
@@ -603,16 +606,36 @@
 
                 if(p.link) {
                     btnChat.style.display = 'flex';
-                    btnChat.onclick = () => window.open(p.link);
+                    btnChat.onclick = () => {
+                        let finalLink = p.link;
+                        if (!finalLink.startsWith('http://') && !finalLink.startsWith('https://')) {
+                            finalLink = 'https://' + finalLink;
+                        }
+                        window.open(finalLink, '_blank');
+                    };
                     btnChat.innerHTML = '<i class="fas fa-comment"></i> 구글챗으로 대화하기';
                 } else {
                     btnChat.style.display = 'none';
                 }
 
-                if(p.seller === this.user) {
+                // [관리자 기능 추가 3] 관리자 이메일 확인 및 권한 부여
+                const isAdmin = this.userEmail === 'chlgywp17@pess.cnehs.kr';
+
+                // 판매자 본인이거나 관리자(isAdmin)일 경우 버튼 영역 활성화
+                if(p.seller === this.user || isAdmin) {
                     ownerActions.style.display = 'flex';
+                    
                     if(p.status === 'sold') {
-                        ownerActions.innerHTML = '<span style="color:red; font-weight:bold;">이미 거래가 완료된 상품입니다.</span> <button class="btn-delete" onclick="window.app.deleteItem()">삭제</button>';
+                        ownerActions.innerHTML = '<span style="color:red; font-weight:bold;">이미 거래가 완료된 상품입니다.</span> <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>';
+                    } else {
+                        // 관리자이면서 본인 글이 아닐 경우 '거래완료' 버튼은 숨기고 '삭제' 버튼만 보여주려면 아래처럼 처리
+                        // 본인 글일 경우에만 '거래완료 처리' 버튼 표시
+                        const markSoldBtn = (p.seller === this.user) ? '<button class="btn btn-primary" onclick="window.app.markSold()">거래완료 처리</button>' : '';
+                        
+                        ownerActions.innerHTML = `
+                            ${markSoldBtn}
+                            <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>
+                        `;
                     }
                 } else {
                     ownerActions.style.display = 'none';
