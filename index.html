@@ -67,6 +67,7 @@
         .nav-item.active { color: var(--dark); border-bottom: 2px solid var(--dark); }
         .nav-item.active-donate { color: var(--primary); border-bottom: 2px solid var(--primary); }
         .nav-item.active-auction { color: var(--auction); border-bottom: 2px solid var(--auction); }
+        .nav-item.active-my { color: #d946ef; border-bottom: 2px solid #d946ef; } /* 내 물건 전용 색상 */
 
         .container { 
             max-width: 1200px; margin: 0 auto; padding: 30px 20px; 
@@ -193,6 +194,7 @@
             <div id="tab-trade" class="nav-item active" onclick="window.app.switchTab('trade')">중고장터</div>
             <div id="tab-auction" class="nav-item" onclick="window.app.switchTab('auction')">경매</div>
             <div id="tab-donate" class="nav-item" onclick="window.app.switchTab('donate')">나눔</div>
+            <div id="tab-my" class="nav-item" onclick="window.app.switchTab('my')">내 물건</div>
             <div id="tab-guide" class="nav-item" onclick="window.app.switchTab('guide')">이용방법</div>
         </div>
         <button class="btn btn-outline" style="width:auto; padding:8px 14px; font-size:0.8rem;" onclick="window.app.logout()">로그아웃</button>
@@ -222,6 +224,14 @@
         </div>
         <div id="list-donate" class="grid"></div>
         <div class="fab" style="background:var(--primary);" onclick="window.app.goWrite('donate')"><i class="fas fa-gift"></i></div>
+    </div>
+
+    <div id="screen-my" class="container">
+        <div class="info-box" style="background:#fdf4ff; padding:20px; border-radius:8px; margin-bottom:20px; text-align:center;">
+            <h3 style="color:#d946ef; margin-bottom:5px;">📦 내 물건 관리</h3>
+            <p style="font-size:0.9rem;">내가 등록한 모든 물건을 한눈에 확인하고 가격을 수정하세요.</p>
+        </div>
+        <div id="list-my" class="grid"></div>
     </div>
 
     <div id="screen-guide" class="container" style="max-width:700px;">
@@ -333,10 +343,8 @@
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <button id="btn-chat" class="btn btn-chat-link"><i class="fas fa-comment"></i> 구글챗으로 대화하기</button>
                     
-                    <div id="owner-actions" style="display:none; gap:10px; margin-top:10px;">
-                        <button class="btn btn-primary" id="btn-mark-sold" onclick="window.app.markSold()">거래완료 처리</button>
-                        <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>
-                    </div>
+                    <div id="owner-actions" style="display:none; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                        </div>
                 </div>
             </div>
         </div>
@@ -367,7 +375,7 @@
 
         window.app = {
             user: null,
-            userEmail: null, // [관리자 기능 추가 1] 이메일을 저장할 변수 추가
+            userEmail: null, 
             products: {}, 
             currentTab: 'trade',
             selectedId: null,
@@ -376,7 +384,7 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         this.user = user.displayName;
-                        this.userEmail = user.email; // [관리자 기능 추가 2] 로그인 시 이메일 저장
+                        this.userEmail = user.email; 
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('header').style.display = 'flex';
                         this.switchTab('trade');
@@ -417,7 +425,8 @@
             switchTab: function(tab) {
                 this.currentTab = tab;
                 document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'active-donate', 'active-auction'));
+                // [내 물건 관리 기능 추가 3] 네비게이션 활성화 설정
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'active-donate', 'active-auction', 'active-my'));
                 
                 if(tab === 'guide') {
                     document.getElementById('screen-guide').classList.add('active');
@@ -430,6 +439,7 @@
                 nav.classList.add('active');
                 if(tab === 'donate') nav.classList.add('active-donate');
                 if(tab === 'auction') nav.classList.add('active-auction');
+                if(tab === 'my') nav.classList.add('active-my'); 
 
                 this.render(tab);
             },
@@ -443,10 +453,18 @@
                 const searchInput = document.getElementById('search-' + type);
                 if(searchInput) searchQuery = searchInput.value.toLowerCase();
 
-                const arr = Object.values(this.products)
-                    .filter(p => p.type === type)
-                    .filter(p => p.title.toLowerCase().includes(searchQuery))
-                    .sort((a,b) => b.id - a.id);
+                // [내 물건 관리 기능 추가 4] '내 물건(my)' 탭일 경우 본인이 올린 게시물만 필터링
+                let arr = [];
+                if (type === 'my') {
+                    arr = Object.values(this.products)
+                        .filter(p => p.seller === this.user)
+                        .sort((a,b) => b.id - a.id);
+                } else {
+                    arr = Object.values(this.products)
+                        .filter(p => p.type === type)
+                        .filter(p => p.title.toLowerCase().includes(searchQuery))
+                        .sort((a,b) => b.id - a.id);
+                }
 
                 if(arr.length === 0) {
                     list.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:50px; color:#aaa;">아직 등록된 물건이 없거나 검색 결과가 없습니다.</p>`;
@@ -455,9 +473,11 @@
 
                 arr.forEach(p => {
                     const isSold = p.status === 'sold';
-                    let badgeClass = type === 'donate' ? 'badge-donate' : (type === 'auction' ? 'badge-auction' : 'badge-trade');
-                    let badgeText = type === 'donate' ? '무료나눔' : (type === 'auction' ? '경매진행' : '중고장터');
-                    let displayPrice = type === 'donate' ? '0원' : Number(p.price).toLocaleString() + '원';
+                    const actualType = p.type; // my 탭에서도 원래 타입의 뱃지를 보여주기 위해 추가
+                    
+                    let badgeClass = actualType === 'donate' ? 'badge-donate' : (actualType === 'auction' ? 'badge-auction' : 'badge-trade');
+                    let badgeText = actualType === 'donate' ? '무료나눔' : (actualType === 'auction' ? '경매진행' : '중고장터');
+                    let displayPrice = actualType === 'donate' ? '0원' : Number(p.price).toLocaleString() + '원';
 
                     list.innerHTML += `
                         <div class="card" onclick="window.app.openDetail(${p.id})">
@@ -468,7 +488,7 @@
                             </div>
                             <div class="card-info">
                                 <div class="card-title">${p.title}</div>
-                                <div class="card-price" style="${type==='auction' ? 'color:var(--auction)' : ''}">
+                                <div class="card-price" style="${actualType==='auction' ? 'color:var(--auction)' : ''}">
                                     ${displayPrice}
                                 </div>
                                 <div class="card-seller">판매자: ${p.seller}</div>
@@ -618,21 +638,21 @@
                     btnChat.style.display = 'none';
                 }
 
-                // [관리자 기능 추가 3] 관리자 이메일 확인 및 권한 부여
                 const isAdmin = this.userEmail === 'chlgywp17@pess.cnehs.kr';
+                const isMine = (p.seller === this.user);
 
-                // 판매자 본인이거나 관리자(isAdmin)일 경우 버튼 영역 활성화
-                if(p.seller === this.user || isAdmin) {
+                if(isMine || isAdmin) {
                     ownerActions.style.display = 'flex';
                     
                     if(p.status === 'sold') {
-                        ownerActions.innerHTML = '<span style="color:red; font-weight:bold;">이미 거래가 완료된 상품입니다.</span> <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>';
+                        ownerActions.innerHTML = '<span style="color:red; font-weight:bold; width:100%;">이미 거래가 완료된 상품입니다.</span> <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>';
                     } else {
-                        // 관리자이면서 본인 글이 아닐 경우 '거래완료' 버튼은 숨기고 '삭제' 버튼만 보여주려면 아래처럼 처리
-                        // 본인 글일 경우에만 '거래완료 처리' 버튼 표시
-                        const markSoldBtn = (p.seller === this.user) ? '<button class="btn btn-primary" onclick="window.app.markSold()">거래완료 처리</button>' : '';
+                        // [내 물건 관리 기능 추가 5] 본인 글일 경우 가격 수정 버튼 추가 (무료나눔 제외)
+                        const editPriceBtn = (isMine && p.type !== 'donate') ? '<button class="btn btn-outline" style="border-color:var(--primary); color:var(--primary);" onclick="window.app.editPrice()">가격 수정</button>' : '';
+                        const markSoldBtn = isMine ? '<button class="btn btn-primary" onclick="window.app.markSold()">거래완료 처리</button>' : '';
                         
                         ownerActions.innerHTML = `
+                            ${editPriceBtn}
                             ${markSoldBtn}
                             <button class="btn btn-danger" onclick="window.app.deleteItem()">게시글 삭제</button>
                         `;
@@ -645,6 +665,28 @@
             closeModal: function() {
                 document.getElementById('modal-detail').style.display = 'none';
                 this.selectedId = null;
+            },
+
+            // [내 물건 관리 기능 추가 6] 가격을 수정하는 함수
+            editPrice: function() {
+                const p = this.products[this.selectedId];
+                if(!p) return;
+                
+                const newPrice = prompt(`현재 가격은 ${Number(p.price).toLocaleString()}원입니다.\n변경할 새로운 가격을 숫자만 입력해주세요.`, p.price);
+                
+                if(newPrice === null) return; // 사용자가 '취소'를 누름
+                
+                const numPrice = Number(newPrice);
+                if(isNaN(numPrice) || numPrice < 0 || newPrice.trim() === '') {
+                    return alert('올바른 금액을 숫자로 입력해주세요.');
+                }
+                
+                update(ref(db, 'products/' + this.selectedId), { price: numPrice })
+                    .then(() => {
+                        alert('가격이 성공적으로 수정되었습니다.');
+                        this.closeModal(); // 모달창을 한 번 닫아줍니다 (다음 열람 시 갱신됨)
+                    })
+                    .catch(e => alert('수정 실패: ' + e.message));
             },
 
             placeBid: function() {
